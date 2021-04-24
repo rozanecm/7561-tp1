@@ -17,6 +17,7 @@ func jobsHandler(writer http.ResponseWriter, request *http.Request) {
 }
 
 func aboutHandler(writer http.ResponseWriter, request *http.Request) {
+	someDatastoreStuff()
 	_, _ = fmt.Fprint(writer, "Hello, About!")
 }
 
