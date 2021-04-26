@@ -10,14 +10,14 @@ type Count struct {
 	Count int
 }
 
-func someDatastoreStuff() {
+func someDatastoreStuff(name string) {
 	log.Println("in about stuff")
 	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, "taller3-tp1-rozanecm")
 	defer client.Close()
 
 	const amount = 1
-	key := datastore.NameKey("page_visits_counter", "home", nil)
+	key := datastore.NameKey("page_visits_counter", name, nil)
 	log.Println("key:", key)
 	_, err := client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
 		log.Println("in run in transaction")
