@@ -10,7 +10,7 @@ type Count struct {
 	Count int
 }
 
-func someDatastoreStuff(name string) {
+func updateCounter(name string) {
 	log.Println("in about stuff")
 	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, "taller3-tp1-rozanecm")

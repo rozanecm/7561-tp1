@@ -10,8 +10,8 @@ import (
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/home", indexHandler)
-	myRouter.HandleFunc("/", indexHandler)
+	myRouter.HandleFunc("/home", homeHandler)
+	myRouter.HandleFunc("/", homeHandler)
 	myRouter.HandleFunc("/jobs", jobsHandler)
 	myRouter.HandleFunc("/about", aboutHandler)
 	myRouter.HandleFunc("/about/legals", aboutLegalsHandler)
@@ -25,21 +25,22 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":"+port, myRouter))
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprint(w, "Hello, Home!")
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	task, err := createTask("home-counter")
+	_, _ = fmt.Fprintf(w, "Hello, Home!\n created task: %s, error: %s", task, err)
 }
 
 func jobsHandler(writer http.ResponseWriter, request *http.Request) {
-	task, err := createTask("my-queue")
+	task, err := createTask("jobs-counter")
 	_, _ = fmt.Fprintf(writer, "Hello, Jobs!\n created task: %s, error: %s", task, err)
 }
 
 func aboutHandler(writer http.ResponseWriter, request *http.Request) {
-	someDatastoreStuff("home")
-	_, _ = fmt.Fprint(writer, "Hello, About!")
+	task, err := createTask("about-counter")
+	_, _ = fmt.Fprintf(writer, "Hello, About!\n created task: %s, error: %s", task, err)
 }
 
 func aboutLegalsHandler(writer http.ResponseWriter, request *http.Request) {
-	_, _ = fmt.Fprint(writer, "Hello, About Legals!")
+	task, err := createTask("about-legals-counter")
+	_, _ = fmt.Fprintf(writer, "Hello, About Legals!\n created task: %s, error: %s", task, err)
 }
-

@@ -71,6 +71,8 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	updateCounter(queueName)
+
 	// Log & output details of the task.
 	output := fmt.Sprintf("Completed task: task queue(%s), task name(%s), payload(%s)",
 		queueName,
