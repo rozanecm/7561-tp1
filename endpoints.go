@@ -6,9 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func handleRequests() {
+
+	//fs := http.FileServer(http.Dir("res"))
+
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/home", homeHandler)
 	myRouter.HandleFunc("/", homeHandler)
@@ -16,6 +20,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/about", aboutHandler)
 	myRouter.HandleFunc("/about/legals", aboutLegalsHandler)
 	myRouter.HandleFunc("/task_handler", taskHandler)
+
+	myRouter.HandleFunc("/static", staticHandler)
+	myRouter.HandleFunc("/hear-tech-wsg-bridge-for-dante.pdf", pdfHandler)
+	myRouter.HandleFunc("/Qu-16-User-Guide-AP9031_2.pdf", pdf2Handler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -25,8 +33,25 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":"+port, myRouter))
 }
 
+func pdfHandler(writer http.ResponseWriter, request *http.Request) {
+	cwd, _ := os.Getwd()
+	http.ServeFile(writer, request, filepath.Join(cwd, "res/hear-tech-wsg-bridge-for-dante.pdf"))
+}
+
+func pdf2Handler(writer http.ResponseWriter, request *http.Request) {
+	cwd, _ := os.Getwd()
+	http.ServeFile(writer, request, filepath.Join(cwd, "res/Qu-16-User-Guide-AP9031_2.pdf"))
+}
+
+func staticHandler(writer http.ResponseWriter, request *http.Request) {
+	cwd, _ := os.Getwd()
+	http.ServeFile(writer, request, filepath.Join(cwd, "res/index.html"))
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("one log")
 	task, err := createTask("home-counter")
+	log.Println("one log after creating task")
 	_, _ = fmt.Fprintf(w, "Hello, Home!\n created task: %s, error: %s", task, err)
 }
 
