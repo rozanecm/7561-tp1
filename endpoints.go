@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 func handleRequests() {
@@ -24,6 +23,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/static", staticHandler)
 	myRouter.HandleFunc("/hear-tech-wsg-bridge-for-dante.pdf", pdfHandler)
 	myRouter.HandleFunc("/Qu-16-User-Guide-AP9031_2.pdf", pdf2Handler)
+	myRouter.HandleFunc("/argerich.jpeg", argerichHandler)
+	myRouter.HandleFunc("/favicon.ico", faviconHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -31,21 +32,6 @@ func handleRequests() {
 		log.Printf("Defaulting to port %s", port)
 	}
 	log.Fatal(http.ListenAndServe(":"+port, myRouter))
-}
-
-func pdfHandler(writer http.ResponseWriter, request *http.Request) {
-	cwd, _ := os.Getwd()
-	http.ServeFile(writer, request, filepath.Join(cwd, "res/hear-tech-wsg-bridge-for-dante.pdf"))
-}
-
-func pdf2Handler(writer http.ResponseWriter, request *http.Request) {
-	cwd, _ := os.Getwd()
-	http.ServeFile(writer, request, filepath.Join(cwd, "res/Qu-16-User-Guide-AP9031_2.pdf"))
-}
-
-func staticHandler(writer http.ResponseWriter, request *http.Request) {
-	cwd, _ := os.Getwd()
-	http.ServeFile(writer, request, filepath.Join(cwd, "res/index.html"))
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
