@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -10,14 +10,13 @@ import (
 
 func handleRequests() {
 
-	//fs := http.FileServer(http.Dir("res"))
-
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/home", homeHandler)
-	myRouter.HandleFunc("/", homeHandler)
-	myRouter.HandleFunc("/jobs", jobsHandler)
-	myRouter.HandleFunc("/about", aboutHandler)
-	myRouter.HandleFunc("/about/legals", aboutLegalsHandler)
+	myRouter.HandleFunc("/home", templateHandler("home", "home-counter"))
+	myRouter.HandleFunc("/", templateHandler("home", "home-counter"))
+	myRouter.HandleFunc("/jobs", templateHandler("jobs", "jobs-counter"))
+	myRouter.HandleFunc("/about", templateHandler("about", "about-counter"))
+	myRouter.HandleFunc("/about/legals", templateHandler("about-legals", "about-legals-counter"))
+
 	myRouter.HandleFunc("/task_handler", taskHandler)
 
 	myRouter.HandleFunc("/static", staticHandler)
@@ -25,6 +24,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/Qu-16-User-Guide-AP9031_2.pdf", pdf2Handler)
 	myRouter.HandleFunc("/argerich.jpeg", argerichHandler)
 	myRouter.HandleFunc("/favicon.ico", faviconHandler)
+
+	myRouter.HandleFunc("/template", templateHandler("some counter dude", ""))
+
+	myRouter.HandleFunc("/api/counter/{counter}", counterHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -34,24 +37,34 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":"+port, myRouter))
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("one log")
-	task, err := createTask("home-counter")
-	log.Println("one log after creating task")
-	_, _ = fmt.Fprintf(w, "Hello, Home!\n created task: %s, error: %s", task, err)
+func counterHandler(writer http.ResponseWriter, request *http.Request) {
+	params := mux.Vars(request)
+	log.Println(params["counter"])
 }
 
-func jobsHandler(writer http.ResponseWriter, request *http.Request) {
-	task, err := createTask("jobs-counter")
-	_, _ = fmt.Fprintf(writer, "Hello, Jobs!\n created task: %s, error: %s", task, err)
+type CounterRequest struct {
+	Counter string
 }
 
-func aboutHandler(writer http.ResponseWriter, request *http.Request) {
-	task, err := createTask("about-counter")
-	_, _ = fmt.Fprintf(writer, "Hello, About!\n created task: %s, error: %s", task, err)
-}
+func templateHandler(counter, taskName string) http.HandlerFunc {
+	if taskName != "" {
+		_, err := createTask(taskName)
+		if err != nil {
+			log.Println("error creating task:", err)
+		}
+	}
 
-func aboutLegalsHandler(writer http.ResponseWriter, request *http.Request) {
-	task, err := createTask("about-legals-counter")
-	_, _ = fmt.Fprintf(writer, "Hello, About Legals!\n created task: %s, error: %s", task, err)
+	return func(writer http.ResponseWriter, request *http.Request) {
+		//counter := request.URL.Query().Get("counter")
+		//log.Println("counter value:", counter)
+		tmpl, err := template.ParseFiles("res/index.html")
+		if err != nil {
+			log.Println("some error ocurred loading teamplte:", err)
+		}
+		c := CounterRequest{counter}
+		err = tmpl.Execute(writer, c)
+		if err != nil {
+			log.Println("error occurred Executing template:", err)
+		}
+	}
 }
