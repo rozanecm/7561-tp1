@@ -11,11 +11,11 @@ import (
 func handleRequests() {
 
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/home", templateHandler("home", "home-counter"))
-	myRouter.HandleFunc("/", templateHandler("home", "home-counter"))
-	myRouter.HandleFunc("/jobs", templateHandler("jobs", "jobs-counter"))
-	myRouter.HandleFunc("/about", templateHandler("about", "about-counter"))
-	myRouter.HandleFunc("/about/legals", templateHandler("about-legals", "about-legals-counter"))
+	myRouter.HandleFunc("/home", templateHandler("home-counter"))
+	myRouter.HandleFunc("/", templateHandler("home-counter"))
+	myRouter.HandleFunc("/jobs", templateHandler("jobs-counter"))
+	myRouter.HandleFunc("/about", templateHandler("about-counter"))
+	myRouter.HandleFunc("/about/legals", templateHandler("about-legals-counter"))
 
 	myRouter.HandleFunc("/task_handler", taskHandler)
 
@@ -25,7 +25,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/argerich.jpeg", argerichHandler)
 	myRouter.HandleFunc("/favicon.ico", faviconHandler)
 
-	myRouter.HandleFunc("/template", templateHandler("some counter dude", ""))
+	myRouter.HandleFunc("/template", templateHandler(""))
 
 	myRouter.HandleFunc("/api/counter/{counter}", counterHandler)
 
@@ -37,31 +37,29 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":"+port, myRouter))
 }
 
-func counterHandler(writer http.ResponseWriter, request *http.Request) {
-	params := mux.Vars(request)
-	log.Println(params["counter"])
-}
-
 type CounterRequest struct {
 	Counter string
 }
 
-func templateHandler(counter, taskName string) http.HandlerFunc {
-	if taskName != "" {
-		_, err := createTask(taskName)
-		if err != nil {
-			log.Println("error creating task:", err)
-		}
-	}
-
+func templateHandler(taskName string) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Println("taskName:", taskName)
+		if taskName != "" {
+			log.Println("about to create task:", taskName)
+			task, err := createTask(taskName)
+			if err != nil {
+				log.Println("error creating task:", err)
+			} else {
+				log.Println("created task:", task)
+			}
+		}
 		//counter := request.URL.Query().Get("counter")
 		//log.Println("counter value:", counter)
 		tmpl, err := template.ParseFiles("res/index.html")
 		if err != nil {
 			log.Println("some error ocurred loading teamplte:", err)
 		}
-		c := CounterRequest{counter}
+		c := CounterRequest{taskName}
 		err = tmpl.Execute(writer, c)
 		if err != nil {
 			log.Println("error occurred Executing template:", err)

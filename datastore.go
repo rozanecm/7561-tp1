@@ -3,7 +3,11 @@ package main
 import (
 	"cloud.google.com/go/datastore"
 	"context"
+	"fmt"
+	"github.com/gorilla/mux"
 	"log"
+	"net/http"
+	"strconv"
 )
 
 type Count struct {
@@ -37,4 +41,24 @@ func updateCounter(name string) {
 	}
 	// [END datastore_transactional_retry]
 	_ = err // Check error.
+}
+
+func counterHandler(writer http.ResponseWriter, request *http.Request) {
+
+	counterName := mux.Vars(request)["counter"]
+
+	ctx := context.Background()
+	client, _ := datastore.NewClient(ctx, "taller3-tp1-rozanecm")
+	defer client.Close()
+	// [START datastore_lookup]
+	var counter Count
+	counterKey := datastore.NameKey("page_visits_counter", counterName, nil)
+	err := client.Get(ctx, counterKey, &counter)
+	// [END datastore_lookup]
+	if err != nil {
+		log.Println("Some error occurred retrieving counter:", err)
+		fmt.Fprintf(writer, "Some error occurred retrieving counter.")
+	} else {
+		fmt.Fprintf(writer, strconv.Itoa(counter.Count))
+	}
 }

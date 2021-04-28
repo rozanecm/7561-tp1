@@ -44,7 +44,7 @@
 <div>
     <h1>Welcome to Intitutional size!</h1>
     <p>The following number of visitors have already visited this awesome site:</p>
-    <p id="counter"></p>
+    <p id="counter" class="aligncenter"></p>
     <!--<p class="aligncenter"><img src="" id="catcounter"/></p>-->
     <p class="aligncenter"><img src="argerich.jpeg"/></p>
     <iframe src="hear-tech-wsg-bridge-for-dante.pdf" width="100%" height="500px"></iframe>
@@ -54,16 +54,18 @@
     console.log("in script at bottom")
     let mytext = "{{.Counter}}"
     console.log("received text:", mytext)
-    fetch('https://cataas.com/api/tags')
-        .then(response => response.json())
+    let url = "http://localhost:8080/api/counter/" + mytext
+    console.log("formed url:", url)
+    fetch(url)
         .then(response => {
+            console.log("response:", response)
+            return response.json()
+
+        })
+        .then(response => {
+            console.log("response json:", response)
             console.log(response)
-            let text = response[5]
-            console.log(text)
-            document.getElementById("counter").innerHTML = text;
-            // newURL = "https://cataas.com/cat/cute/says/" + text;
-            // document.getElementById("catcounter").src = newURL;
-            // document.getElementById("counter").innerHTML =  "text";
+            document.getElementById("counter").innerHTML = response;
         });
 
 </script>
