@@ -55,7 +55,7 @@ func templateHandler(taskName string) http.HandlerFunc {
 		}
 		//counter := request.URL.Query().Get("counter")
 		//log.Println("counter value:", counter)
-		tmpl, err := template.ParseFiles("res/index.html")
+		tmpl, err := template.ParseFiles("static/index.html")
 		if err != nil {
 			log.Println("some error ocurred loading teamplte:", err)
 		}
