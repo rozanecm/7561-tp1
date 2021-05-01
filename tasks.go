@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func createTask(queueID string) (*tasks.Task, error) {
@@ -69,9 +71,14 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("ReadAll: %v", err)
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		return
+	} else {
+		log.Println("body:", string(body))
 	}
 
-	updateCounter(queueName)
+	shardNumber := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond)%1000, 10)
+	counterName := queueName + shardNumber
+
+	updateCounter(counterName)
 
 	// Log & output details of the task.
 	output := fmt.Sprintf("Completed task: task queue(%s), task name(%s), payload(%s)",
