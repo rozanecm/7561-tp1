@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -75,10 +76,12 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("body:", string(body))
 	}
 
-	shardNumber := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond)%1000, 10)
+	//shardNumber := strconv.FormatInt(time.Now().Second(), 10)
+	shardNumber := strconv.Itoa(time.Now().Second())
 	counterName := queueName + shardNumber
+	route := strings.Split(queueName, "-counter")[0]
 
-	updateCounter(counterName)
+	updateCounter(counterName, route)
 
 	// Log & output details of the task.
 	output := fmt.Sprintf("Completed task: task queue(%s), task name(%s), payload(%s)",

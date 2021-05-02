@@ -12,9 +12,10 @@ import (
 
 type Count struct {
 	Count int
+	Route string
 }
 
-func updateCounter(name string) {
+func updateCounter(name, route string) {
 	log.Println("in about stuff")
 	ctx := context.Background()
 	client, _ := datastore.NewClient(ctx, "taller3-tp1-rozanecm")
@@ -32,6 +33,8 @@ func updateCounter(name string) {
 			log.Println("returning error:", err)
 		}
 		task.Count += amount
+		task.Route = route
+		log.Println(task.Route)
 		_, err = tx.Put(key, &task)
 		return err
 
