@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const SecondsCacheThreshold = 60
+const SecondsCacheThreshold = 5
 
 type Count struct {
 	Count int
