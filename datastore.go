@@ -5,14 +5,30 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"google.golang.org/api/iterator"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 )
+
+const SecondsCacheThreshold = 60
 
 type Count struct {
 	Count int
 	Route string
+}
+
+type Cache struct {
+	Counter   int
+	timestamp time.Time
+}
+
+var cache map[string]Cache
+
+func init() {
+	cache = make(map[string]Cache)
 }
 
 func updateCounter(name, route string) {
@@ -49,19 +65,36 @@ func updateCounter(name, route string) {
 func counterHandler(writer http.ResponseWriter, request *http.Request) {
 
 	counterName := mux.Vars(request)["counter"]
+	route := strings.Split(counterName, "-counter")[0]
 
-	ctx := context.Background()
-	client, _ := datastore.NewClient(ctx, "taller3-tp1-rozanecm")
-	defer client.Close()
-	// [START datastore_lookup]
-	var counter Count
-	counterKey := datastore.NameKey("page_visits_counter", counterName, nil)
-	err := client.Get(ctx, counterKey, &counter)
-	// [END datastore_lookup]
-	if err != nil {
-		log.Println("Some error occurred retrieving counter:", err)
-		fmt.Fprintf(writer, "Some error occurred retrieving counter.")
+	if cacheExpired(counterName) {
+		log.Println("cache expired")
+		ctx := context.Background()
+		client, _ := datastore.NewClient(ctx, "taller3-tp1-rozanecm")
+		defer client.Close()
+		query := datastore.NewQuery("page_visits_counter").Filter("Route =", route)
+		it := client.Run(ctx, query)
+		totalCount := 0
+		for {
+			var currentCounter Count
+			_, err := it.Next(&currentCounter)
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error fetching next currentCounter: %v", err)
+			}
+			totalCount += currentCounter.Count
+		}
+		log.Println("Total Count", totalCount)
+		cache[counterName] = Cache{Counter: totalCount, timestamp: time.Now()}
+		fmt.Fprintf(writer, strconv.Itoa(totalCount))
 	} else {
-		fmt.Fprintf(writer, strconv.Itoa(counter.Count))
+		log.Println("returning value from cache")
+		fmt.Fprintf(writer, strconv.Itoa(cache[counterName].Counter))
 	}
+}
+
+func cacheExpired(name string) bool {
+	return time.Now().Sub(cache[name].timestamp).Seconds() > SecondsCacheThreshold
 }
