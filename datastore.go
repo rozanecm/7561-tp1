@@ -8,12 +8,11 @@ import (
 	"google.golang.org/api/iterator"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
-
-const SecondsCacheThreshold = 5
 
 type Count struct {
 	Count int
@@ -27,8 +26,13 @@ type Cache struct {
 
 var cache map[string]Cache
 
+var SecondsCacheThreshold = 5.0
+
 func init() {
 	cache = make(map[string]Cache)
+	if value, err := strconv.ParseFloat(os.Getenv("CACHE_TIME_IN_SECONDS"), 32); err == nil {
+		SecondsCacheThreshold = value
+	}
 }
 
 func updateCounter(name, route string) {

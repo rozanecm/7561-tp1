@@ -7,3 +7,9 @@ handlers:
   - url: /(.*\.(gif|png|jpg|pdf))$
     static_files: static/\1
     upload: static/.*\.(gif|png|jpg|pdf)$
+
+automatic_scaling:
+  max_instances: 1
+
+env_variables:
+  CACHE_TIME_IN_SECONDS: "5"
