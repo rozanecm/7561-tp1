@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Locust</title>
+    <link rel="stylesheet" type="text/css" href="./Locust_files/application.css" media="screen">
+    <link rel="shortcut icon" href="http://localhost:8089/static/img/favicon.ico" type="image/x-icon">
+</head>
+<body class="stopped">
+    <div class="top">
+        <div class="top-content container">
+            <img src="./Locust_files/logo.png" class="logo">
+            <div class="boxes">
+                <div class="top_box box_url">
+                    <div class="label">HOST</div>
+                    <div class="value" id="host_url">https://taller3-tp1-rozanecm.ue.r.appspot.com</div>
+                </div>
+                <div class="top_box box_status">
+                    <div class="label">STATUS</div>
+                    <div class="value" id="status_text">stopped</div>
+                    <div class="user_count" style="display: none;">
+                        <span id="userCount">0</span> users
+                    </div>
+                    <a href="http://localhost:8089/#" class="new-test" id="new-test" style="">New test</a>
+                    <a href="http://localhost:8089/#" class="edit-test" id="edit-test" style="display: none;">Edit</a>
+                </div>
+                
+                <div class="top_box box_rps box_running" id="box_rps">
+                    <div class="label">RPS</div>
+                    <div class="value" id="total_rps">100.4</div>
+                </div>
+                <div class="top_box box_fail box_running" id="box_fail">
+                    <div class="label">FAILURES</div>
+                    <div class="value"><span id="fail_ratio">0</span>%</div>
+                </div>
+                <div class="top_box box_stop box_running" id="box_stop" style="display: none;">
+                    <a href="http://localhost:8089/stop" class="stop-button"><i></i>STOP</a>
+                    <a href="http://localhost:8089/stats/reset" class="reset-button">Reset<br>Stats</a>
+                </div>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+    
+    <div class="dialogs">
+        <div class="dialog start" id="start" style="display: none;">
+            <div style="position:relative;">
+                <a href="http://localhost:8089/#" class="close_link">Close</a>
+            </div>
+            <div class="padder">
+                <h2>Start new load test</h2>
+                <form action="http://localhost:8089/swarm" method="POST" id="swarm_form">
+                    
+                        <label for="user_count">Number of total users to simulate</label>
+                        <input type="text" name="user_count" id="user_count" class="val" value=""><br>
+                        <label for="spawn_rate">Spawn rate <span style="color:#8a8a8a;">(users spawned/second)</span></label>
+                        <input type="text" name="spawn_rate" id="spawn_rate" class="val" value=""><br>
+                    
+                    <label for="host">
+                        Host <span style="color:#8a8a8a;">(e.g. http://www.example.com)</span>
+                        
+                    </label>
+                    <input type="text" name="host" id="host" class="val" autocapitalize="off" autocorrect="off" value=""><br>
+                    <button type="submit">Start swarming</button>
+                </form>
+                <div style="clear:right;"></div>
+            </div>
+        </div>
+
+        <div class="dialog edit" id="edit">
+            <div style="position:relative;">
+                <a href="http://localhost:8089/#" class="close_link">Close</a>
+            </div>
+            <div class="padder">
+                <h2>Edit running load test</h2>
+                <form action="http://localhost:8089/swarm" method="POST" id="edit_form">
+                    
+                        <label for="new_user_count">Number of users to simulate</label>
+                        <input type="text" name="user_count" id="new_user_count" class="val" value=""><br>
+                        <label for="spawn_rate">Spawn rate <span style="color:#8a8a8a;">(users to start per second (or stop))</span></label>
+                        <input type="text" name="spawn_rate" id="new_spawn_rate" class="val" value=""><br>
+                    
+                    
+                        <button type="submit">Start swarming</button>
+                    
+                </form>
+                <div style="clear:right;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main" id="main">
+        <nav class="menu">
+            <ul class="tabs container">
+                <li><a href="http://localhost:8089/#" class="">Statistics</a></li>
+                <li><a href="http://localhost:8089/#" class="chart-tab-link current">Charts</a></li>
+                <li><a href="http://localhost:8089/#" class="">Failures</a></li>
+                <li><a href="http://localhost:8089/#">Exceptions</a></li>
+                <li><a href="http://localhost:8089/#">Download Data</a></li>
+                
+                
+            </ul>
+        </nav>
+        <div class="panes container">
+            <div style="display: none;">
+                <table id="stats" class="stats">
+                    <thead>
+                        <tr>
+                            <th class="stats_label" href="#" data-sortkey="method">Type</th>
+                            <th class="stats_label" href="#" data-sortkey="name">Name</th>
+                            <th class="stats_label numeric nowrap" href="#" data-sortkey="num_requests" title="Number of successful requests"># Requests</th>
+                            <th class="stats_label numeric nowrap" href="#" data-sortkey="num_failures" title="Number of failures"># Fails</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="median_response_time" title="Median response time">Median (ms)</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="ninetieth_response_time" title="Ninetieth percentile response time, because the response time greater than 100ms is rounded, you may see it greater than the max response time">90%ile (ms)</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="avg_response_time" title="Average response time">Average (ms)</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="min_response_time" title="Min response time">Min (ms)</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="max_response_time" title="Max response time">Max (ms)</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="avg_content_length" title="Average response size">Average size (bytes)</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="current_rps" title="Current number of requests per second">Current RPS</th>
+                            <th class="stats_label numeric" href="#" data-sortkey="current_fail_per_sec" title="Current number of failures per second">Current Failures/s</th>
+                        </tr>
+                    </thead>
+                    <tbody><tr class="">            <td>GET</td>            <td class="name" title="/">/</td>            <td class="numeric">1686</td>            <td class="numeric">0</td>            <td class="numeric">220</td>            <td class="numeric">310</td>            <td class="numeric">246</td>            <td class="numeric">180</td>            <td class="numeric">2674</td>            <td class="numeric">479</td>            <td class="numeric">26.4</td>            <td class="numeric">0</td>        </tr>        <tr class="">            <td>GET</td>            <td class="name" title="/about">/about</td>            <td class="numeric">1747</td>            <td class="numeric">0</td>            <td class="numeric">220</td>            <td class="numeric">310</td>            <td class="numeric">242</td>            <td class="numeric">180</td>            <td class="numeric">1807</td>            <td class="numeric">481</td>            <td class="numeric">24.7</td>            <td class="numeric">0</td>        </tr>        <tr class="">            <td>GET</td>            <td class="name" title="/about/legals">/about/legals</td>            <td class="numeric">1658</td>            <td class="numeric">0</td>            <td class="numeric">220</td>            <td class="numeric">310</td>            <td class="numeric">245</td>            <td class="numeric">180</td>            <td class="numeric">2469</td>            <td class="numeric">495</td>            <td class="numeric">23.2</td>            <td class="numeric">0</td>        </tr>        <tr class="">            <td>GET</td>            <td class="name" title="/jobs">/jobs</td>            <td class="numeric">1757</td>            <td class="numeric">0</td>            <td class="numeric">220</td>            <td class="numeric">310</td>            <td class="numeric">245</td>            <td class="numeric">179</td>            <td class="numeric">2659</td>            <td class="numeric">479</td>            <td class="numeric">26.1</td>            <td class="numeric">0</td>        </tr>        <tr class="total">            <td></td>            <td class="name" title="Aggregated">Aggregated</td>            <td class="numeric">6848</td>            <td class="numeric">0</td>            <td class="numeric">220</td>            <td class="numeric">310</td>            <td class="numeric">244</td>            <td class="numeric">179</td>            <td class="numeric">2674</td>            <td class="numeric">484</td>            <td class="numeric">100.4</td>            <td class="numeric">0</td>        </tr></tbody>
+                </table>
+            </div>
+            <div id="charts" style="display: block;">
+                <div class="charts-container"><div class="chart" _echarts_instance_="ec_1619454574029" style="width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;"><div style="position: relative; width: 1778px; height: 348px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1778" height="348" style="position: absolute; left: 0px; top: 0px; width: 1778px; height: 348px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1) 0s, visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1) 0s, left 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s, top 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s; background-color: rgba(21, 35, 28, 0.93); border-width: 0px; border-radius: 4px; color: rgb(179, 195, 188); font: 13px / 20px sans-serif; padding: 10px; left: 1215px; top: 184px; border-color: rgb(255, 255, 255); z-index: 1; pointer-events: none; visibility: hidden; opacity: 0;">6:13:31 PM<br><span style="color:#00ca5a;">RPS: 41.5</span><br><span style="color:#ff6d6d;">Failures/s: 0</span><br><span style="color:#a3b3ac;">Users: 94</span></div></div><div class="chart" _echarts_instance_="ec_1619454574030" style="width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;"><div style="position: relative; width: 1778px; height: 348px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1778" height="348" style="position: absolute; left: 0px; top: 0px; width: 1778px; height: 348px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1) 0s, visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1) 0s, left 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s, top 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s; background-color: rgba(21, 35, 28, 0.93); border-width: 0px; border-radius: 4px; color: rgb(179, 195, 188); font: 13px / 20px sans-serif; padding: 10px; left: 1399px; top: 185px; border-color: rgb(255, 255, 255); z-index: 1; pointer-events: none;">6:14:23 PM<br><span style="color:#00ca5a;">Median Response Time: 240</span><br><span style="color:#ffca5a;">95% percentile: 340</span><br><span style="color:#a3b3ac;">Users: 199</span></div></div><div class="chart" _echarts_instance_="ec_1619454574031" style="width: 100%; -webkit-tap-highlight-color: transparent; user-select: none; position: relative;"><div style="position: relative; width: 1778px; height: 348px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1778" height="348" style="position: absolute; left: 0px; top: 0px; width: 1778px; height: 348px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1) 0s, visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1) 0s; background-color: rgba(21, 35, 28, 0.93); border-width: 0px; border-radius: 4px; color: rgb(179, 195, 188); font: 13px / 20px sans-serif; padding: 10px; left: 1591px; top: 97px; border-color: rgb(255, 255, 255); z-index: 1; pointer-events: none;">6:14:36 PM<br><span style="color:#00ca5a;">Users: 200</span></div></div></div>
+            </div>
+            <div style="display: none;">
+                <table id="errors" class="stats">
+                    <thead>
+                        <tr><th class="error_count stats_label" data-sortkey="occurrences"># fails</th>
+                        <th class="stats_label" href="#" data-sortkey="method">Method</th>
+                        <th class="stats_label" href="#" data-sortkey="name">Name</th>
+                        <th class="error_type stats_label" data-sortkey="error">Type</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div style="display:none;">
+                <table id="exceptions" class="stats">
+                    <thead>
+                        <tr><th class="exception_occurrences stats_label"># occurrences</th>
+                        <th class="exception_traceback stats_label">Traceback</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div style="display:none;">
+                <div style="margin-top:20px;">
+                    <a href="http://localhost:8089/stats/requests/csv">Download request statistics CSV</a><br>
+                    
+                    <a href="http://localhost:8089/stats/failures/csv">Download failures CSV</a><br>
+                    <a href="http://localhost:8089/exceptions/csv">Download exceptions CSV</a><br>
+                    <a href="http://localhost:8089/stats/report" target="_blank">Download Report</a><br>
+                </div>
+            </div>
+            
+            
+        </div>
+
+        <div class="about" style="display:none;">
+            <div style="position:relative;">
+                <a href="http://localhost:8089/#" class="close_link">Close</a>
+            </div>
+            <div class="padder">
+                <h1>About</h1>
+                <p>
+                    The original idea for Locust was Carl Byström's who made a first proof of concept in June 2010.
+                    Jonatan Heyman picked up Locust in January 2011, implemented the current concept of Locust classes
+                    and made it work distributed across multiple machines.
+                </p>
+                <p>
+                    Jonatan, Carl and Joakim Hamrén has continued the development of Locust at their job,
+                    ESN Social Software, who have adopted Locust as an inhouse Open Source project.
+                </p>
+
+                <h1>Authors and Copyright</h1>
+                <a href="http://cgbystrom.com/">Carl Byström</a> (<a href="https://twitter.com/cgbystrom/">@cgbystrom</a>)<br>
+                <a href="http://heyman.info/">Jonatan Heyman</a> (<a href="https://twitter.com/jonatanheyman/">@jonatanheyman</a>)<br>
+                Joakim Hamrén (<a href="https://twitter.com/Jahaaja/">@jahaaja</a>)<br>
+                <a href="http://esn.me/">ESN Social Software</a> (<a href="https://twitter.com/uprise_ea/">@uprise_ea</a>)<br>
+                Hugo Heyman (<a href="https://twitter.com/hugoheyman/">@hugoheyman</a>)
+
+
+                <h1>License</h1>
+                Open source licensed under the MIT license.
+
+                <h2>Version <a href="https://github.com/locustio/locust/releases/tag/1.4.4">1.4.4</a></h2>
+                <br>
+                <a href="https://locust.io/">https://locust.io</a>
+            </div>
+        </div>
+    </div>
+    <nav class="footer">
+        <div class="container">
+            <a href="http://localhost:8089/#" onclick="$(&#39;.about&#39;).fadeIn();">About</a>
+        </div>
+    </nav>
+
+
+    <script type="text/javascript" src="./Locust_files/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="./Locust_files/jquery.jqote2.min.js"></script>
+    <script type="text/javascript" src="./Locust_files/jquery.tools.min.js"></script>
+    <!-- echarts from https://github.com/ecomfe/echarts -->
+    <script type="text/javascript" src="./Locust_files/echarts.common.min.js"></script>
+    <!-- vintage theme of echarts -->
+    <script type="text/javascript" src="./Locust_files/vintage.js"></script>
+    <script type="text/x-jqote-template" id="stats-template">
+        <![CDATA[
+        <tr class="<%=(this.is_aggregated ? "total" : "")%>">
+            <td><%= (this.method ? this.method : "") %></td>
+            <td class="name" title="<%= this.name %>"><%= this.safe_name %></td>
+            <td class="numeric"><%= this.num_requests %></td>
+            <td class="numeric"><%= this.num_failures %></td>
+            <td class="numeric"><%= Math.round(this.median_response_time) %></td>
+            <td class="numeric"><%= Math.round(this.ninetieth_response_time) %></td>
+            <td class="numeric"><%= Math.round(this.avg_response_time) %></td>
+            <td class="numeric"><%= this.min_response_time %></td>
+            <td class="numeric"><%= this.max_response_time %></td>
+            <td class="numeric"><%= Math.round(this.avg_content_length) %></td>
+            <td class="numeric"><%= Math.round(this.current_rps*100)/100 %></td>
+            <td class="numeric"><%= Math.round(this.current_fail_per_sec*100)/100 %></td>
+        </tr>
+        <% alternate = !alternate; %>
+        ]]>
+    </script>
+    <script type="text/x-jqote-template" id="errors-template">
+        <![CDATA[
+        <tr>
+            <td><%= this.occurrences %></td>
+            <td><%= this.method %></td>
+            <td><%= this.name %></td>
+            <td><%= function(e) { return e.replace("<", "&lt;"); }(this.error) %></td>
+        </tr>
+        <% alternate = !alternate; %>
+        ]]>
+    </script>
+    <script type="text/x-jqote-template" id="exceptions-template">
+        <![CDATA[
+        <tr>
+            <td class="occurrences"><%= this.count %></td>
+            <td class="traceback" title="Occurred on: <%= this.nodes %>"><%= function(e) { return e.replace("<", "&lt;"); }(this.traceback) %>
+<%= function(e) { return e.replace("<", "&lt;"); }(this.msg) %></td>
+        </tr>
+        <% alternate = !alternate; %>
+        ]]>
+    </script>
+    <script type="text/x-jqote-template" id="worker-template">
+        <![CDATA[
+        <tr class="<%=(this.name == "Total" ? "total" : "")%>">
+            <td><%= this.id %></td>
+            <td><%= this.state %></td>
+            <td class="numeric"><%= this.user_count %></td>
+            <td class="numeric"><%= this.cpu_usage %>%</td>
+        </tr>
+        <% alternate = !alternate; %>
+        ]]>
+    </script>
+    <script type="text/javascript">
+        
+var stats_history = {
+    "time": ["13:29:25", "13:29:30"],
+    "user_count": [{"value": 0}, {"value": 0}],
+    "current_rps": [{"users": 0, "value": 0}, {"users": 0, "value": 0}],
+    "current_fail_per_sec": [{"users": 0, "value": 0}, {"users": 0, "value": 0}],
+    "response_time_percentile_50": [{"users": 0, "value": 0}, {"users": 0, "value": 0}],
+    "response_time_percentile_95": [{"users": 0, "value": 0}, {"users": 0, "value": 0}],
+};
+    </script>
+    <script type="text/javascript" src="./Locust_files/chart.js"></script>
+    <script type="text/javascript" src="./Locust_files/locust.js"></script>
+    
+    
+
+</body></html>
